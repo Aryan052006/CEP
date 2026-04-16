@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-pink: #E91E63;
+  --color-brand-purple: #9C27B0;
+  --color-brand-background: #F8F9FB;
+  --color-brand-accent: #FFC107;
+  
+  --color-background: var(--color-brand-background);
+  --color-foreground: #171717;
+
+  --font-sans: var(--font-poppins), sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-primary {
+    @apply bg-gradient-to-r from-brand-pink to-brand-purple;
+  }
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-pink to-brand-purple;
+  }
+}
