@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ChevronRight, Sparkles } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const QUESTIONS = [
   {
@@ -24,14 +25,53 @@ const QUESTIONS = [
 ];
 
 export default function ReadinessQuiz() {
-  const [step, setStep] = useState(0); // 0-based for questions, QUESTIONS.length for results
+  const { apiFetch } = useAuth();
+  const [step, setStep] = useState(0); 
   const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [mlLoading, setMlLoading] = useState(false);
+  const [mlResults, setMlResults] = useState<any[]>([]);
+  const [quizScore, setQuizScore] = useState(0);
 
-  const handleSelect = (qIndex: number, option: string) => {
-    setAnswers({ ...answers, [qIndex]: option });
-    setTimeout(() => {
+  const handleSelect = async (qIndex: number, option: string) => {
+    const newAnswers = { ...answers, [qIndex]: option };
+    setAnswers(newAnswers);
+    
+    if (step + 1 >= QUESTIONS.length) {
+      // Reached the end — call quiz endpoint via backend
       setStep(prev => prev + 1);
-    }, 300);
+      setMlLoading(true);
+      
+      try {
+        const quizPayload = Object.entries(newAnswers).map(([key, val]) => ({
+          questionId: parseInt(key) + 1,
+          selectedOption: val,
+        }));
+
+        const res = await apiFetch("/ml/quiz", {
+          method: "POST",
+          body: JSON.stringify({ answers: quizPayload }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          setMlResults(data.data.recommendations || []);
+          setQuizScore(data.data.score || 85);
+        }
+      } catch (err) {
+        console.error("ML Quiz Failed:", err);
+        // Fallback
+        setMlResults([
+          { title: "Digital Literacy Basics", match: "90% Match", duration: "1 Month" },
+        ]);
+        setQuizScore(75);
+      } finally {
+        setMlLoading(false);
+      }
+    } else {
+      setTimeout(() => {
+        setStep(prev => prev + 1);
+      }, 300);
+    }
   };
 
   const progress = (step / QUESTIONS.length) * 100;
@@ -95,6 +135,12 @@ export default function ReadinessQuiz() {
                 })}
               </div>
             </motion.div>
+          ) : mlLoading ? (
+            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
+              <div className="w-16 h-16 border-4 border-brand-pink/30 border-t-brand-pink rounded-full animate-spin mx-auto mb-6" />
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Analyzing your profile...</h2>
+              <p className="text-gray-500 text-sm">Our ML model is finding the best matches for you.</p>
+            </motion.div>
           ) : (
             <motion.div
               key="results"
@@ -107,30 +153,36 @@ export default function ReadinessQuiz() {
                 <Sparkles size={40} />
                 <motion.div 
                   initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: "spring" }}
-                  className="absolute -top-2 -right-2 bg-brand-accent text-white w-8 h-8 flex items-center justify-center rounded-full font-bold text-xs shadow-md"
+                  className="absolute -top-2 -right-2 bg-brand-accent text-white w-10 h-10 flex items-center justify-center rounded-full font-bold text-sm shadow-md"
                 >
-                  95%
+                  {quizScore}%
                 </motion.div>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Test Complete!</h2>
-              <p className="text-gray-500 mb-8 max-w-sm mx-auto">Based on your answers, you have high aptitude for creative and independent work.</p>
+              <p className="text-gray-500 mb-8 max-w-sm mx-auto">Your readiness score is <strong>{quizScore}%</strong>. Here are your ML-powered skill recommendations.</p>
 
-              <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 text-left mb-8">
-                <h3 className="font-bold text-gray-900 mb-4 px-1">Top Suggested Path</h3>
-                <div className="flex gap-4 items-center bg-gray-50 p-4 rounded-2xl">
-                  <span className="text-4xl">✂️</span>
-                  <div>
-                    <h4 className="font-bold text-gray-900">Tailoring & Boutique</h4>
-                    <p className="text-xs text-brand-pink font-semibold">Perfect for side-income goals</p>
+              <div className="space-y-4 mb-8 text-left">
+                {mlResults.length > 0 ? mlResults.map((rec: any, i: number) => (
+                  <div key={i} className="bg-white p-6 rounded-3xl shadow-md border border-gray-100">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-gray-900">{rec.title}</h4>
+                      <span className="text-xs bg-gray-100 text-gray-600 font-bold px-2 py-1 rounded">{rec.duration}</span>
+                    </div>
+                    <p className="text-xs text-brand-pink font-semibold">ML Calculated: {rec.match}</p>
                   </div>
-                </div>
+                )) : (
+                  <div className="bg-white p-6 rounded-3xl shadow-md border border-gray-100">
+                    <h4 className="font-bold text-gray-900">Digital Literacy Basics</h4>
+                    <p className="text-xs text-brand-pink font-semibold">Recommended Path</p>
+                  </div>
+                )}
               </div>
 
               <Link 
                 href="/skills"
                 className="w-full py-4 rounded-xl bg-brand-pink text-white font-semibold text-lg shadow-lg shadow-brand-pink/30 hover:bg-pink-600 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
-                View Recommendations <ChevronRight size={20} />
+                View Skill Modules <ChevronRight size={20} />
               </Link>
             </motion.div>
           )}

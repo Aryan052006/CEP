@@ -1,0 +1,26 @@
+scheme_id,scheme_name,category,target_employment,target_state,min_age,max_age,max_income,link,description
+1,Pradhan Mantri Mudra Yojana,Financial,Self-employed,All,18,65,1000000,https://www.mudra.org.in/,Micro-business loans up to Rs 10 Lakhs for small entrepreneurs
+2,Mahila Samridhi Yojana,Financial,Homemaker,All,18,60,300000,https://www.nari.nic.in/,Savings and micro-credit scheme for women in rural areas
+3,Annapurna Scheme,Business,Self-employed,All,18,65,500000,https://www.sbi.co.in/,Food catering business loans for women entrepreneurs
+4,Stree Shakti Package,Financial,Self-employed,All,18,65,500000,https://www.sbi.co.in/,Concession in interest rates for women entrepreneurs
+5,Dena Shakti Scheme,Financial,Self-employed,All,18,65,2000000,https://www.bankofbaroda.in/,Loans for agriculture and small enterprises run by women
+6,Udyogini Scheme,Business,Unemployed,All,18,45,150000,https://www.wcd.nic.in/,Financial support for women to start small businesses
+7,Cent Kalyani Scheme,Business,Self-employed,All,18,65,10000000,https://www.centralbankofindia.co.in/,Collateral-free loans for women in micro and small enterprises
+8,Mahila Udyam Nidhi,Financial,Self-employed,All,18,55,1000000,https://www.sidbi.in/,Equity support for women setting up new projects in small scale
+9,Rashtriya Mahila Kosh,Financial,Homemaker,All,18,60,200000,https://rmk.nic.in/,Micro-credit to poor women for livelihood and housing
+10,Support to Training and Employment Programme,Skill,Unemployed,All,16,35,300000,https://www.wcd.nic.in/,Training and employment support for women in need
+11,Pradhan Mantri Kaushal Vikas Yojana,Skill,Unemployed,All,15,45,500000,https://www.pmkvyofficial.org/,Free skill training and certification for youth
+12,National Skill Development Mission,Skill,Student,All,15,35,500000,https://www.msde.gov.in/,Skill development framework for employability
+13,MGNREGA,Employment,Homemaker,All,18,65,200000,https://nrega.nic.in/,Guaranteed 100 days of wage employment in rural areas
+14,Stand-Up India,Business,Self-employed,All,18,65,10000000,https://www.standupmitra.in/,Bank loans between Rs 10 Lakh and Rs 1 Crore for SC/ST and women
+15,Mahila E-Haat,Business,Self-employed,All,18,60,500000,https://mahilaehaat-rmk.gov.in/,Online marketing platform for women entrepreneurs
+16,PM Garib Kalyan Yojana,Financial,Homemaker,All,18,65,100000,https://www.india.gov.in/,Food security and financial aid for below poverty line families
+17,Sukanya Samriddhi Yojana,Financial,Student,All,0,10,1500000,https://www.india.gov.in/,Savings scheme for girl child with high interest rates
+18,Beti Bachao Beti Padhao,Education,Student,All,0,25,500000,https://www.wcd.nic.in/,Awareness and welfare for the girl child
+19,Free Sewing Machine Yojana,Skill,Homemaker,All,20,40,200000,https://www.india.gov.in/,Free sewing machines for poor and working women
+20,Lakhpati Didi Scheme,Financial,Homemaker,All,18,60,300000,https://www.india.gov.in/,Empowering SHG women to earn Rs 1 Lakh annually
+21,PM Vishwakarma Yojana,Skill,Self-employed,All,18,65,500000,https://pmvishwakarma.gov.in/,Support for traditional artisans and craftspeople
+22,DAY-NRLM,Employment,Unemployed,All,18,60,300000,https://nrlm.gov.in/,Rural livelihoods mission for self-employment through SHGs
+23,One Stop Centre Scheme,Safety,All,All,18,65,99999999,https://www.wcd.nic.in/,Support for women affected by violence - shelter and legal aid
+24,Working Women Hostel,Employment,Part-time,All,18,35,500000,https://www.wcd.nic.in/,Safe and affordable hostel accommodation for working women
+25,Nai Roshni,Skill,Homemaker,All,18,65,300000,https://www.minorityaffairs.gov.in/,Leadership development programme for minority women

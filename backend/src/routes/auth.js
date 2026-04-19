@@ -17,7 +17,7 @@ const generateToken = (id) => {
 // @access  Public
 router.post('/register', async (req, res) => {
   try {
-    const { name, phone, password, age, employmentStatus, state } = req.body;
+    const { name, phone, password, age, income, employmentStatus, state } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ phone });
@@ -31,6 +31,7 @@ router.post('/register', async (req, res) => {
       phone,
       password,
       age,
+      income: income || 0,
       employmentStatus,
       state
     });
@@ -44,6 +45,8 @@ router.post('/register', async (req, res) => {
         id: user._id,
         name: user.name,
         phone: user.phone,
+        age: user.age,
+        income: user.income,
         employmentStatus: user.employmentStatus,
         state: user.state
       }
@@ -82,6 +85,8 @@ router.post('/login', async (req, res) => {
         id: user._id,
         name: user.name,
         phone: user.phone,
+        age: user.age,
+        income: user.income,
         employmentStatus: user.employmentStatus,
         state: user.state
       }

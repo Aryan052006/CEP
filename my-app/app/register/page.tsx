@@ -2,72 +2,61 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { fetchAPI } from "../utils/api";
+import { ArrowLeft } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 export default function RegisterPage() {
-  const { login } = useAuth();
+  const { register } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: "",
     phone: "",
-    password: "", // In a real app we'd add this to UI, let's mock it for now since UI didn't have it initially, or I will update the form
+    password: "",
     age: "",
+    income: "",
     employmentStatus: "",
     state: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setIsSubmitting(true);
-    setError(null);
-    
     try {
-      // Mocking password since UI only asked for demographic initially, 
-      // but backend requires password. I'm injecting a default one or adding field.
-      // Better to just add the phone/password fields to UI.
-      const payload = {
-        ...formData,
-        age: Number(formData.age),
-      };
-
-      const res = await fetchAPI("/auth/register", {
-        method: "POST",
-        body: JSON.stringify(payload),
+      await register({
+        name: form.name,
+        phone: form.phone,
+        password: form.password,
+        age: parseInt(form.age),
+        income: parseInt(form.income) || 0,
+        employmentStatus: form.employmentStatus,
+        state: form.state,
       });
-
-      if (res.success) {
-        login(res.token, res.user);
-      }
     } catch (err: any) {
       setError(err.message || "Registration failed");
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-brand-background flex flex-col pt-12 pb-20 px-4 items-center justify-center relative overflow-hidden">
-      {/* Soft background decor */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-brand-pink/10 rounded-full blur-3xl -z-10" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-purple/10 rounded-full blur-3xl -z-10" />
 
       <div className="w-full max-w-md relative z-10">
-        <Link 
-          href="/"
-          className="inline-flex items-center gap-2 text-gray-500 hover:text-brand-pink mb-6 transition-colors"
-        >
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-brand-pink mb-6 transition-colors">
           <ArrowLeft size={20} />
           <span>Back to Welcome</span>
         </Link>
-        
+
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -80,20 +69,15 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm text-center">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <input 
-                type="text" 
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required 
+              <input type="text" name="name" required value={form.name} onChange={handleChange}
                 placeholder="e.g. Radhika Sharma"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-pink/50 focus:border-brand-pink transition-colors"
               />
@@ -101,51 +85,31 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-              <input 
-                type="tel" 
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required 
-                placeholder="10-digit number"
+              <input type="tel" name="phone" required value={form.phone} onChange={handleChange}
+                placeholder="e.g. 9876543210"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-pink/50 focus:border-brand-pink transition-colors"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input 
-                type="password" 
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required 
-                placeholder="Minimum 6 characters"
+              <input type="password" name="password" required minLength={6} value={form.password} onChange={handleChange}
+                placeholder="Min 6 characters"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-pink/50 focus:border-brand-pink transition-colors"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                <input 
-                  type="number" 
-                  name="age"
-                  value={formData.age}
-                  onChange={handleChange}
-                  required 
-                  min={16}
-                  max={100}
+                <input type="number" name="age" required min={16} max={100} value={form.age} onChange={handleChange}
                   placeholder="e.g. 28"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-pink/50 focus:border-brand-pink transition-colors"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Income (₹/mo)</label>
-                <input 
-                  type="number" 
-                  // Name wasn't in backend reqs, keeping it for UI or mapping it out
-                  required 
+                <input type="number" name="income" value={form.income} onChange={handleChange}
                   placeholder="e.g. 5000"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-pink/50 focus:border-brand-pink transition-colors"
                 />
@@ -155,11 +119,7 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Employment Status</label>
               <div className="relative">
-                <select 
-                  name="employmentStatus"
-                  value={formData.employmentStatus}
-                  onChange={handleChange}
-                  required
+                <select name="employmentStatus" required value={form.employmentStatus} onChange={handleChange}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-pink/50 focus:border-brand-pink transition-colors appearance-none"
                 >
                   <option value="" disabled>Select status</option>
@@ -170,7 +130,7 @@ export default function RegisterPage() {
                   <option value="Unemployed">Unemployed</option>
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
               </div>
             </div>
@@ -178,11 +138,7 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Location (State)</label>
               <div className="relative">
-                <select 
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  required
+                <select name="state" required value={form.state} onChange={handleChange}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-pink/50 focus:border-brand-pink transition-colors appearance-none"
                 >
                   <option value="" disabled>Select state</option>
@@ -195,15 +151,13 @@ export default function RegisterPage() {
                   <option value="Other">Other</option>
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-4 mt-6 rounded-xl bg-brand-pink text-white font-semibold text-lg shadow-lg shadow-brand-pink/30 hover:bg-pink-600 active:scale-95 transition-all flex items-center justify-center disabled:opacity-70 disabled:active:scale-100"
+            <button type="submit" disabled={isSubmitting}
+              className="w-full py-4 mt-6 rounded-xl bg-brand-pink text-white font-semibold text-lg shadow-lg shadow-brand-pink/30 hover:bg-pink-600 active:scale-95 transition-all flex items-center justify-center disabled:opacity-70"
             >
               {isSubmitting ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -212,7 +166,7 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
-          
+
           <div className="mt-8 text-center text-sm text-gray-500">
             Already have an account? <Link href="/login" className="text-brand-pink font-semibold hover:underline">Log In</Link>
           </div>

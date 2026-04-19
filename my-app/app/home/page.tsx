@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuth } from "../context/AuthContext";
 import { AppLayout } from "../components/AppLayout";
 import { 
   Landmark, BookOpen, UserPlus, Users, 
@@ -11,7 +12,8 @@ import {
 
 export default function HomeDashboard() {
   const { t } = useLanguage();
-  const userName = "Radhika"; // Mock user data
+  const { user } = useAuth();
+  const userName = user?.name?.split(" ")[0] || "User";
 
   const features = [
     { href: "/schemes", icon: <Landmark size={28} className="text-brand-pink" />, title: "Government Schemes", desc: "Find schemes for you" },
@@ -40,15 +42,19 @@ export default function HomeDashboard() {
             <h1 className="text-2xl md:text-3xl font-bold mb-1">{t("home_title")}, {userName}! 👋</h1>
             <p className="text-pink-100 font-medium">Ready to take the next step today?</p>
             
-            <div className="mt-6 flex bg-white/20 rounded-2xl p-4 backdrop-blur-md border border-white/20 max-w-sm">
-              <div className="flex-1">
-                <span className="text-xs text-pink-100 uppercase font-semibold tracking-wider block mb-1">Your Progress</span>
-                <div className="h-2 bg-white/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-white w-1/3 rounded-full" />
+            {user && (
+              <div className="mt-6 flex bg-white/20 rounded-2xl p-4 backdrop-blur-md border border-white/20 max-w-sm">
+                <div className="flex-1">
+                  <span className="text-xs text-pink-100 uppercase font-semibold tracking-wider block mb-1">
+                    {user.employmentStatus} · {user.state}
+                  </span>
+                  <div className="h-2 bg-white/30 rounded-full overflow-hidden">
+                    <div className="h-full bg-white w-1/3 rounded-full" />
+                  </div>
+                  <span className="text-sm font-medium mt-1 block">Level 1: Beginner</span>
                 </div>
-                <span className="text-sm font-medium mt-1 block">Level 1: Beginner</span>
               </div>
-            </div>
+            )}
           </div>
         </motion.div>
 
@@ -95,10 +101,10 @@ export default function HomeDashboard() {
               <BookOpen size={20} />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-gray-800 text-sm">Complete Profile</h4>
-              <p className="text-xs text-gray-600">Add missing info to get better scheme recommendations.</p>
+              <h4 className="font-semibold text-gray-800 text-sm">Take Readiness Test</h4>
+              <p className="text-xs text-gray-600">Discover which skills match your strengths.</p>
             </div>
-            <Link href="/profile" className="px-4 py-2 bg-white text-sm font-semibold text-orange-600 rounded-full shadow-sm hover:bg-orange-50 transition-colors">
+            <Link href="/skills/readiness" className="px-4 py-2 bg-white text-sm font-semibold text-orange-600 rounded-full shadow-sm hover:bg-orange-50 transition-colors">
               Go
             </Link>
           </div>

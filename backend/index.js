@@ -15,6 +15,8 @@ app.use(cors());
 
 // Mount routers
 app.use('/api/auth', authRoutes);
+app.use('/api/ml', require('./src/routes/ml'));
+app.use('/api/content', require('./src/routes/content'));
 
 // Base route
 app.get('/', (req, res) => {

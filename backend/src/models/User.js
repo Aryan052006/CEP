@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  income: {
+    type: Number,
+    default: 0,
+    // Monthly income in INR
+  },
   employmentStatus: {
     type: String,
     required: true,
@@ -37,6 +42,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'mentor', 'admin'],
     default: 'user'
+  },
+  savedSchemes: [{
+    type: String,
+  }],
+  completedSkills: [{
+    type: String,
+  }],
+  quizScore: {
+    type: Number,
+    default: 0,
   },
   createdAt: {
     type: Date,

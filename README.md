@@ -1,207 +1,226 @@
-Build a modern, mobile-first, full-stack web application for women empowerment, targeting rural and semi-urban users in India.
+# 🌸 Saheli — Women Empowerment Platform
 
-The application must include:
-• Frontend (React + Tailwind CSS)
-• Backend (FastAPI or Node.js)
-• Database (MongoDB / Firebase / PostgreSQL)
-• Real Machine Learning models (scikit-learn)
-• Multi-language support (English, Hindi, Marathi)
+A modern, mobile-first, full-stack web application empowering rural and semi-urban women in India to discover government schemes, learn income-generating skills, connect with mentors, showcase products, and achieve financial independence.
 
-The app should feel like a real startup product with smooth UI and simple usability.
+---
 
-🎯 CORE OBJECTIVE
+## 🏗️ Architecture
 
-Help women:
-• Discover government schemes
-• Learn income-generating skills
-• Connect with mentors
-• Showcase products
-• Achieve financial independence
+```
+┌─────────────────────────────────────────────────────┐
+│                    Frontend (Next.js)                │
+│                 http://localhost:3000                │
+│  React 19 · Tailwind CSS 4 · Framer Motion          │
+│  i18n (English, Hindi, Marathi) · AuthContext        │
+└───────────────────┬─────────────────────────────────┘
+                    │  HTTP (REST)
+                    ▼
+┌─────────────────────────────────────────────────────┐
+│                  Backend (Node.js)                   │
+│                 http://localhost:5000                │
+│  Express 5 · MongoDB (Mongoose) · JWT Auth           │
+│  Routes: /api/auth · /api/content · /api/ml          │
+└───────────────────┬─────────────────────────────────┘
+                    │  HTTP (REST)
+                    ▼
+┌─────────────────────────────────────────────────────┐
+│               ML Service (Python/FastAPI)            │
+│                 http://localhost:8000                │
+│  scikit-learn (Random Forest + KNN)                  │
+│  Endpoints: /predict/skills · /predict/schemes       │
+└─────────────────────────────────────────────────────┘
+```
 
-🌍 MULTI-LANGUAGE SUPPORT
+---
 
-• Languages: English, Hindi, Marathi
-• Add 🌐 language switcher in navbar
-• Store selected language in local storage
-• All text must be dynamic and translatable
+## 🎯 Features
 
-📱 USER FLOW
+| Feature | Description |
+|---|---|
+| 🏠 Dashboard | Personalized home with progress tracking |
+| 🏛️ Government Schemes | ML-recommended + searchable catalogue (25 schemes) |
+| 📚 Skill Recommendations | Random Forest classifier for skill matching |
+| 📝 Readiness Quiz | 3-step quiz → ML-powered skill suggestions |
+| 👩‍🏫 Mentorship | Browse mentors, send messages |
+| 🛍️ Marketplace | List and browse handmade products |
+| 💼 Opportunities | Local job listings with match scores |
+| 🛡️ Safety & Legal | Emergency SOS, helplines, know your rights |
+| 📊 Impact Dashboard | Community statistics and goal tracking |
+| 👤 Profile | Account details, saved items, logout |
+| 🌐 Multi-language | English, Hindi, Marathi |
 
-1️⃣ Welcome Page
-• Tagline: “Empowering Women Through Skills & Opportunities”
-• Buttons: Register, Login
+---
 
-2️⃣ Registration Page
-Fields:
-• Name, Age, Income, Employment, Location
-→ Save in database
+## 🤖 Machine Learning Models
 
-3️⃣ Home Dashboard
-• Greeting + banner
-• Feature cards
-• Bottom navigation
+### 1. Skill Recommendation (Random Forest Classifier)
+- **Algorithm**: `RandomForestClassifier` (100 estimators)
+- **Input**: Interest area, time availability, career goal
+- **Output**: Top 3 skills with match percentage + duration
+- **Training Data**: 65 curated samples across 4 interest categories
+- **File**: `ml-service/train_skills.py`
 
-🧠 FEATURES
+### 2. Scheme Recommendation (K-Nearest Neighbors)
+- **Algorithm**: `NearestNeighbors` (k=5, Euclidean distance)
+- **Input**: Age, income, employment status, state
+- **Output**: Top 5 matching government schemes with eligibility scores
+- **Training Data**: 25 real Indian government schemes
+- **File**: `ml-service/train_schemes.py`
 
-• Scheme Recommendation
-• Skill Recommendation
-• Skill Readiness Test
-• Mentorship
-• Local Opportunities
-• Product Showcase
-• Safety & Legal Help
-• Impact Dashboard
-• Profile Page
+---
 
-🇮🇳 GOVERNMENT SCHEMES (FIXED LIST)
+## 📱 Tech Stack
 
-Use ONLY these 12 schemes:
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, Tailwind CSS 4, Framer Motion |
+| Backend | Node.js 22, Express 5, Mongoose 9 |
+| Database | MongoDB |
+| ML Service | Python 3, FastAPI, scikit-learn, joblib |
+| Auth | JWT (jsonwebtoken) + bcryptjs |
 
-• Beti Bachao Beti Padhao
-• STEP
-• Working Women Hostel
-• Mahila E-Haat
-• Pradhan Mantri Mudra Yojana
-• Stand Up India
-• PMEGP
-• Deendayal Antyodaya Yojana (NRLM)
-• PMKVY
-• Skill India
-• PMGDISHA
-• DDU-GKY
+---
 
-Each scheme must include:
-• Name
-• Benefits
-• Eligibility
-• Official link (very important)
+## 🚀 Getting Started
 
-🔗 SCHEME REDIRECTION FEATURE (VERY IMPORTANT ⭐)
+### Prerequisites
+- Node.js 18+
+- Python 3.9+
+- MongoDB (local or Atlas)
 
-• Each scheme card must include an “Apply Now” button
-• On click → redirect user to the official government website
-• Open link in a new tab (for better user experience)
-• Show a small note: “Opens official government site”
-• Add external link icon for clarity
+### 1. Install Dependencies
 
-This ensures real-world usability and authenticity.
+```bash
+# Frontend
+cd my-app && npm install
 
-🗄 DATABASE
+# Backend
+cd backend && npm install
 
-Tables/Collections:
-• Users
-• Schemes
-• Skills
-• Mentors
-• Products
-• Opportunities
+# ML Service
+cd ml-service && pip install -r requirements.txt
+```
 
-Store:
-• User profile
-• Preferences
-• ML predictions
-• Progress
+### 2. Train ML Models (one-time)
 
-Each scheme in database must include:
-• name
-• category
-• eligibility
-• benefits
-• official_link
+```bash
+cd ml-service
+python train_skills.py
+python train_schemes.py
+```
 
-⚙️ BACKEND APIs
+### 3. Start All Services
 
-• POST /register
-• POST /login
-• GET /user
-• GET /schemes
-• POST /skill-recommendation
-• POST /quiz
-• GET /mentors
-• POST /product
-• GET /opportunities
+```powershell
+# Option A: Use the startup script
+.\start_all.ps1
 
-🧠 MACHINE LEARNING (REAL)
+# Option B: Start individually
+# Terminal 1 — ML Service
+cd ml-service && python -m uvicorn main:app --port 8000 --reload
 
-Dataset Source:
-Use Adult Income Dataset from Kaggle and extend it.
+# Terminal 2 — Backend
+cd backend && node index.js
 
-Dataset Structure:
-age, income, employment, location, scheme
+# Terminal 3 — Frontend
+cd my-app && npm run dev
+```
 
-Models:
+### 4. Open the App
+Navigate to **http://localhost:3000**
 
-1️⃣ Scheme Recommendation
-• Algorithm: Random Forest
-• Input:
-Age, Income, Employment, Location
-• Output:
-One of 12 schemes
+---
 
-2️⃣ Skill Recommendation
-• Based on user answers
-• Classification or clustering
+## 📁 Project Structure
 
-3️⃣ Skill Readiness Score
-• Score-based or ML
+```
+CEP/
+├── my-app/                   # Frontend (Next.js)
+│   ├── app/
+│   │   ├── page.tsx          # Welcome/Landing
+│   │   ├── login/            # Login screen
+│   │   ├── register/         # Registration
+│   │   ├── home/             # Dashboard
+│   │   ├── schemes/          # Government schemes
+│   │   ├── skills/           # Skill recommendations
+│   │   │   └── readiness/    # Readiness quiz
+│   │   ├── mentors/          # Mentor directory
+│   │   ├── products/         # Product marketplace
+│   │   ├── opportunities/    # Local job listings
+│   │   ├── safety/           # Safety & legal
+│   │   ├── impact/           # Impact dashboard
+│   │   ├── profile/          # User profile
+│   │   ├── components/       # Reusable UI components
+│   │   └── context/          # AuthContext, LanguageContext
+│   └── .env.local
+│
+├── backend/                  # Backend (Express + MongoDB)
+│   ├── index.js              # Server entry point
+│   ├── src/
+│   │   ├── config/db.js      # MongoDB connection
+│   │   ├── middleware/auth.js # JWT middleware
+│   │   ├── models/           # User, Scheme, Product, Mentor, Opportunity
+│   │   └── routes/           # auth.js, content.js, ml.js
+│   └── .env
+│
+├── ml-service/               # ML Service (FastAPI + scikit-learn)
+│   ├── main.py               # FastAPI server
+│   ├── train_skills.py       # Random Forest training
+│   ├── train_schemes.py      # KNN training
+│   ├── data/                 # CSV datasets
+│   ├── models/               # Trained .pkl files
+│   └── requirements.txt
+│
+├── start_all.ps1             # Start all 3 services
+└── README.md
+```
 
-Requirements:
-• Train model using dataset
-• Save model (.pkl)
-• Load in backend
-• Serve predictions via API
+---
 
-🔗 FRONTEND CONNECTION
+## 📌 API Endpoints
 
-• Use fetch/axios
-• Replace static data with API calls
-• Show loading and error states
+### Auth (`/api/auth`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/register` | Register new user |
+| POST | `/login` | Login with phone + password |
+| GET | `/me` | Get current user (protected) |
 
-🎨 UI DESIGN
+### Content (`/api/content`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/schemes` | Get all government schemes |
+| GET | `/mentors` | Get all mentors |
+| GET | `/products` | Get all products |
+| POST | `/products` | Add a new product |
+| GET | `/opportunities` | Get local job listings |
+| GET | `/impact` | Get impact statistics |
 
-Colors:
-• Pink (#E91E63)
-• Purple (#9C27B0)
-• Background (#F8F9FB)
-• Accent (#FFC107)
+### ML (`/api/ml`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/predict-skills` | Predict skills (Random Forest) |
+| POST | `/predict-schemes` | Predict schemes (KNN) |
+| POST | `/quiz` | Score readiness quiz + ML predict |
 
-• Gradient: Pink → Purple
+---
 
-Style:
-• Card-based UI
-• Rounded corners
-• Soft shadows
+## 🎨 Design System
 
-Fonts:
-• Poppins / Inter
+| Token | Value |
+|---|---|
+| Primary (Pink) | `#E91E63` |
+| Secondary (Purple) | `#9C27B0` |
+| Background | `#F8F9FB` |
+| Accent (Yellow) | `#FFC107` |
+| Font | Poppins (Google Fonts) |
+| Border Radius | 2xl–3xl |
+| Shadows | Soft, brand-colored |
 
-✨ UX FEATURES
+---
 
-• Smooth transitions
-• Hover effects
-• Toast messages
-• Loading skeletons
-• Bottom navigation
+## 👩‍💻 Team
 
-👩‍🏫 MENTORSHIP SYSTEM
+Built for the Community Engagement Project (CEP).
 
-• Real profiles:
-Name, Photo, Skill, Experience, Location
-• Rating + availability
-• Connect + Message buttons
-
-📊 IMPACT DASHBOARD
-
-• Women registered
-• Skills learned
-• Products listed
-
-🛍 PRODUCT SHOWCASE
-
-• Product image, price, contact
-
-🛡 SAFETY & LEGAL
-
-• Helplines
-• Rights info
-• Emergency button
+---
