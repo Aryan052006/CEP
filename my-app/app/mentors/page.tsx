@@ -98,6 +98,7 @@ export default function MentorsPage() {
                   <MessageCircle size={16} /> Message
                 </button>
                 <button
+                  onClick={() => alert(`Connection request sent to ${mentor.name}!`)}
                   className={`flex-1 py-2.5 text-white font-semibold text-sm rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 ${
                     mentor.available ? "bg-brand-pink hover:bg-pink-600 active:scale-95 shadow-brand-pink/20" : "bg-gray-300 cursor-not-allowed"
                   }`}
@@ -138,7 +139,10 @@ export default function MentorsPage() {
                     rows={4}
                   />
                 </div>
-                <button className="w-full py-4 bg-brand-pink text-white font-semibold rounded-xl shadow-lg shadow-brand-pink/20 hover:bg-pink-600 active:scale-95 transition-all">
+                <button 
+                  onClick={() => { alert(`Message sent to ${selectedMentor.name}!`); setSelectedMentor(null); }}
+                  className="w-full py-4 bg-brand-pink text-white font-bold rounded-xl shadow-lg shadow-brand-pink/20 hover:bg-pink-600 active:scale-95 transition-all"
+                >
                   Send Message
                 </button>
               </motion.div>

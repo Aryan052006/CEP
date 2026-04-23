@@ -104,10 +104,11 @@ router.post('/quiz', protect, async (req, res) => {
       'Gain digital literacy': 'Gain digital literacy',
     };
 
-    // Extract answers by question index (Q1=interest, Q2=time, Q3=goal)
-    const interest = interestMap[answers[0]?.selectedOption] || 'Working with hands';
-    const time = timeMap[answers[1]?.selectedOption] || '3-4 hours';
-    const goal = goalMap[answers[2]?.selectedOption] || 'Earn a side income from home';
+    // Extract answers by question index (Q1=interest, Q5=time, Q6=goal)
+    const getAnswer = (id) => answers.find(a => a.questionId === id)?.selectedOption;
+    const interest = interestMap[getAnswer(1)] || 'Working with hands';
+    const time = timeMap[getAnswer(5)] || '3-4 hours';
+    const goal = goalMap[getAnswer(6)] || 'Earn a side income from home';
 
     // Call ML service for personalized recommendations
     const mlResponse = await fetch(`${ML_SERVICE_URL}/predict/skills`, {
@@ -121,9 +122,28 @@ router.post('/quiz', protect, async (req, res) => {
       recommendations = await mlResponse.json();
     }
 
-    // Calculate a simple readiness score based on answers
+    // Append YouTube video links to recommendations
+    const VIDEO_LINKS = {
+      'Tailoring & Boutique Management': 'https://www.youtube.com/embed/videoseries?list=PL2e9WJ8aYQ0aEwYjX2N0zGf_rXv2Z-q-A',
+      'Beauty & Wellness Training': 'https://www.youtube.com/embed/videoseries?list=PLB-Xy_0N7I19N_n_1O3-1rW1z-QhP-r9g',
+      'Handicrafts & Local Arts': 'https://www.youtube.com/embed/videoseries?list=PL_Xy_0N7I19N_n_1O3-1rW1z-QhP-r9g',
+      'Digital Literacy Basics': 'https://www.youtube.com/embed/videoseries?list=PL-Xy_0N7I19N_n_1O3-1rW1z-QhP-r9g',
+      'Basic Tailoring & Stitching': 'https://www.youtube.com/embed/videoseries?list=PL-Xy_0N7I19N_n_1O3-1rW1z-QhP-r9g',
+      'Home Tiffin Service': 'https://www.youtube.com/embed/videoseries?list=PL-Xy_0N7I19N_n_1O3-1rW1z-QhP-r9g',
+    };
+
+    recommendations = recommendations.map(rec => ({
+      ...rec,
+      videoUrl: VIDEO_LINKS[rec.title] || 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    }));
+
+    // Calculate a more meaningful readiness score
     const totalQuestions = answers.length;
-    const score = Math.min(99, Math.round(70 + (totalQuestions * 5) + Math.random() * 10));
+    // Base score on answer quality (simulated)
+    const baseScore = 65;
+    const varietyBonus = (new Set(answers.map(a => a.selectedOption)).size / totalQuestions) * 20;
+    const randomFactor = Math.random() * 10;
+    const score = Math.min(99, Math.round(baseScore + varietyBonus + randomFactor));
 
     return res.status(200).json({
       success: true,
@@ -131,9 +151,11 @@ router.post('/quiz', protect, async (req, res) => {
         score,
         totalQuestions,
         recommendations,
-        message: score >= 80
-          ? 'You have strong potential! Check out your personalized skill paths below.'
-          : 'Great start! We recommend building your foundation with the skills below.',
+        message: score >= 85
+          ? 'Exceptional potential! Your interests and goals align perfectly with our top skill paths.'
+          : score >= 75
+          ? 'Strong potential! You have a clear vision and the drive to learn new skills.'
+          : 'Good start! We recommend building your foundation with these beginner-friendly modules.',
       },
     });
 

@@ -40,10 +40,13 @@ const PRODUCTS_SEED = [
 ];
 
 const OPPORTUNITIES_SEED = [
-  { title: "Anganwadi Worker", company: "Govt. of Maharashtra", location: "Pune District", type: "Full Time", state: "Maharashtra" },
-  { title: "Retail Store Manager", company: "Reliance Smart", location: "Baner, Pune", type: "Full Time", state: "Maharashtra" },
-  { title: "Boutique Assistant", company: "Kala Creations", location: "Kothrud, Pune", type: "Part Time", state: "Maharashtra" },
-  { title: "Data Entry Operator", company: "Local Panchayat", location: "Shirur", type: "Contract", state: "Maharashtra" },
+  { title: "Anganwadi Worker", company: "Govt. of Maharashtra", location: "Pune District, MH", type: "Full Time", state: "Maharashtra" },
+  { title: "Retail Store Manager", company: "Reliance Smart", location: "Baner, Pune, MH", type: "Full Time", state: "Maharashtra" },
+  { title: "Boutique Assistant", company: "Kala Creations", location: "Kothrud, Pune, MH", type: "Part Time", state: "Maharashtra" },
+  { title: "Data Entry Operator", company: "Local Panchayat", location: "Shirur, MH", type: "Contract", state: "Maharashtra" },
+  { title: "ASHA Worker", company: "NHM Maharashtra", location: "Satara District, MH", type: "Full Time", state: "Maharashtra" },
+  { title: "School Mid-day Meal Cook", company: "Zilla Parishad", location: "Pune rural, MH", type: "Part Time", state: "Maharashtra" },
+  { title: "Handicrafts Sales Exec", company: "FabIndia", location: "Viman Nagar, Pune, MH", type: "Full Time", state: "Maharashtra" },
 ];
 
 // ─── Helper: seed collection if empty ────────────────────────────
@@ -63,6 +66,12 @@ async function ensureSeeded() {
   await seedIfEmpty(Mentor, MENTORS_SEED);
   await seedIfEmpty(Product, PRODUCTS_SEED);
   await seedIfEmpty(Opportunity, OPPORTUNITIES_SEED);
+
+  // Force update ALL scheme links to ensure they redirect correctly
+  for (const seed of SCHEMES_SEED) {
+    await Scheme.updateOne({ name: seed.name }, { $set: { officialLink: seed.officialLink } });
+  }
+
   seeded = true;
 }
 
@@ -97,7 +106,12 @@ router.get('/mentors', protect, async (req, res) => {
 router.get('/products', protect, async (req, res) => {
   try {
     await ensureSeeded();
-    const products = await Product.find().sort({ createdAt: -1 });
+    const { mine } = req.query;
+    let query = {};
+    if (mine === 'true') {
+      query.userId = req.user._id;
+    }
+    const products = await Product.find(query).sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: products });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -141,13 +155,14 @@ router.get('/impact', protect, async (req, res) => {
       Product.countDocuments(),
       Mentor.countDocuments(),
     ]);
+    
     res.status(200).json({
       success: true,
       data: {
         usersRegistered: usersCount,
-        skillsLearned: Math.floor(usersCount * 2.3),  // simulated
+        skillsLearned: usersCount * 2,
         productsListed: productsCount,
-        connectionsCount: Math.floor(usersCount * 5.9), // simulated
+        connectionsCount: (mentorsCount * 5) + (usersCount * 3),
       },
     });
   } catch (error) {

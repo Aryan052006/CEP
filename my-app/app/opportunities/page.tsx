@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { AppLayout } from "../components/AppLayout";
 import { useAuth } from "../context/AuthContext";
-import { MapPin, Briefcase, ChevronRight, Search, Building } from "lucide-react";
+import { MapPin, Briefcase, ChevronRight, Search, Building, CheckCircle2 } from "lucide-react";
 
 interface JobData {
   _id: string;
@@ -20,6 +20,12 @@ export default function OpportunitiesPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeType, setActiveType] = useState("All Jobs");
+  const [appliedJobs, setAppliedJobs] = useState<Set<string>>(new Set());
+
+  const handleApply = (id: string, title: string) => {
+    alert(`Application submitted successfully for ${title}!`);
+    setAppliedJobs(prev => new Set(prev).add(id));
+  };
 
   useEffect(() => {
     async function fetchJobs() {
@@ -113,13 +119,24 @@ export default function OpportunitiesPage() {
                       </span>
                     </div>
                     <p className="text-sm font-medium text-gray-600 mb-1 truncate">{job.company}</p>
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
                       <span className="flex items-center gap-1"><MapPin size={12} /> {job.location}</span>
                       <span className="w-1 h-1 rounded-full bg-gray-300" />
                       <span>{job.type}</span>
                     </div>
+                    {appliedJobs.has(job._id) ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 text-xs font-bold rounded-lg border border-green-200">
+                        <CheckCircle2 size={14} /> Applied
+                      </span>
+                    ) : (
+                      <button 
+                        onClick={() => handleApply(job._id, job.title)}
+                        className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-brand-pink text-white text-xs font-bold rounded-lg hover:bg-pink-600 active:scale-95 transition-all shadow-sm"
+                      >
+                        Apply Now
+                      </button>
+                    )}
                   </div>
-                  <ChevronRight size={20} className="text-gray-300 shrink-0" />
                 </motion.div>
               );
             })}

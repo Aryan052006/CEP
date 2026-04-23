@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { User, Home } from "lucide-react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useAuth } from "../context/AuthContext";
 
 export function Navbar({ showProfile = true }: { showProfile?: boolean }) {
   const { user } = useAuth();
+  const pathname = usePathname();
+  const showHomeBtn = pathname !== "/" && pathname !== "/home";
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-brand-pink/10 shadow-sm z-40 flex items-center px-4 md:px-8 justify-between">
@@ -18,6 +21,14 @@ export function Navbar({ showProfile = true }: { showProfile?: boolean }) {
       </Link>
       
       <div className="flex items-center gap-3">
+        {/* Home Page Button */}
+        {showHomeBtn && (
+          <Link href="/home" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-brand-pink bg-brand-pink/10 hover:bg-brand-pink/20 transition-colors text-sm font-semibold active:scale-95 shadow-sm">
+            <Home size={16} />
+            <span className="hidden sm:inline">Home</span>
+          </Link>
+        )}
+        
         <LanguageSwitcher />
         {showProfile && (
           <Link href="/profile" className="flex items-center gap-2">

@@ -17,28 +17,59 @@ interface ProductData {
 }
 
 export default function ProductsPage() {
-  const { apiFetch } = useAuth();
+  const { apiFetch, user } = useAuth();
   const [products, setProducts] = useState<ProductData[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [viewMode, setViewMode] = useState<"all" | "mine">("all");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newProduct, setNewProduct] = useState({ title: "", price: "", category: "Handicrafts", description: "", image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&q=80&w=400&h=300" });
+  const [adding, setAdding] = useState(false);
+
+  async function fetchProducts() {
+    setLoading(true);
+    try {
+      const res = await apiFetch(`/content/products${viewMode === "mine" ? "?mine=true" : ""}`);
+      const data = await res.json();
+      if (data.success) setProducts(data.data);
+    } catch (err) {
+      console.error("Failed to fetch products:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const res = await apiFetch("/content/products");
-        const data = await res.json();
-        if (data.success) setProducts(data.data);
-      } catch (err) {
-        console.error("Failed to fetch products:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchProducts();
-  }, []);
+  }, [viewMode]);
 
   const categories = ["All", ...new Set(products.map(p => p.category))];
   const filtered = activeCategory === "All" ? products : products.filter(p => p.category === activeCategory);
+
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdding(true);
+    try {
+      const res = await apiFetch("/content/products", {
+        method: "POST",
+        body: JSON.stringify({
+          ...newProduct,
+          price: Number(newProduct.price),
+          village: user?.state || "Local",
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowAddModal(false);
+        setNewProduct({ title: "", price: "", category: "Handicrafts", description: "", image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&q=80&w=400&h=300" });
+        fetchProducts();
+      }
+    } catch (err) {
+      console.error("Failed to add product:", err);
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
     <AppLayout>
@@ -46,12 +77,37 @@ export default function ProductsPage() {
         <div className="mb-6 px-1 flex justify-between items-end">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-              <Store size={24} className="text-brand-pink" /> Local Marketplace
+              <Store size={24} className="text-brand-pink" /> {viewMode === "all" ? "Local Marketplace" : "My Products"}
             </h1>
-            <p className="text-gray-500 text-sm">Support small businesses led by women.</p>
+            <p className="text-gray-500 text-sm">
+              {viewMode === "all" ? "Support small businesses led by women." : "Manage your listed products."}
+            </p>
           </div>
-          <button className="bg-brand-pink text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-brand-pink/20 hover:bg-pink-600 active:scale-95 transition-all">
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="bg-brand-pink text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-brand-pink/20 hover:bg-pink-600 active:scale-95 transition-all"
+          >
             <Plus size={20} />
+          </button>
+        </div>
+
+        {/* View Toggle */}
+        <div className="flex gap-2 mb-6 px-1">
+          <button 
+            onClick={() => setViewMode("all")}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              viewMode === "all" ? "bg-brand-pink/10 text-brand-pink border border-brand-pink/20" : "bg-white text-gray-500 border border-gray-100"
+            }`}
+          >
+            All Products
+          </button>
+          <button 
+            onClick={() => setViewMode("mine")}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              viewMode === "mine" ? "bg-brand-pink/10 text-brand-pink border border-brand-pink/20" : "bg-white text-gray-500 border border-gray-100"
+            }`}
+          >
+            My Products
           </button>
         </div>
 
@@ -83,7 +139,7 @@ export default function ProductsPage() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : filtered.length > 0 ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 mt-2">
             {filtered.map((product, i) => (
               <motion.div key={product._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
@@ -113,6 +169,65 @@ export default function ProductsPage() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        ) : (
+          <div className="py-20 text-center bg-gray-50/50 rounded-3xl border border-dashed border-gray-200">
+            <Store className="mx-auto text-gray-300 mb-4" size={48} />
+            <h3 className="text-lg font-bold text-gray-900 mb-1">No products found</h3>
+            <p className="text-gray-500 text-sm mb-6">
+              {viewMode === "mine" ? "You haven't listed any products yet." : "No products available in this category."}
+            </p>
+            {viewMode === "mine" && (
+              <button 
+                onClick={() => setShowAddModal(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-brand-pink text-white font-bold rounded-xl shadow-lg shadow-brand-pink/20 active:scale-95 transition-all"
+              >
+                <Plus size={20} /> List Your First Product
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Add Product Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white w-full max-w-md rounded-3xl p-6 relative z-10 shadow-2xl overflow-y-auto max-h-[90vh]">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Add New Product</h2>
+              <form onSubmit={handleAddProduct} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1 px-1">Product Title</label>
+                  <input required type="text" placeholder="e.g. Handmade Woolen Scarf" value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-pink/20 outline-none" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1 px-1">Price (₹)</label>
+                    <input required type="number" placeholder="499" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-pink/20 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1 px-1">Category</label>
+                    <select value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-pink/20 outline-none bg-white">
+                      <option>Clothing</option>
+                      <option>Home Decor</option>
+                      <option>Food & Spices</option>
+                      <option>Handicrafts</option>
+                      <option>Jewelry</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1 px-1">Description</label>
+                  <textarea rows={3} placeholder="Tell buyers about your product..." value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-pink/20 outline-none resize-none" />
+                </div>
+                <button disabled={adding} type="submit" className="w-full py-4 bg-brand-pink text-white font-bold rounded-xl shadow-lg shadow-brand-pink/20 hover:bg-pink-600 active:scale-95 transition-all disabled:opacity-50">
+                  {adding ? "Listing..." : "List Product"}
+                </button>
+              </form>
+            </motion.div>
           </div>
         )}
       </div>

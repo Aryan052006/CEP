@@ -14,13 +14,33 @@ const QUESTIONS = [
   },
   {
     id: 2,
+    q: "What is your highest level of education?",
+    options: ["Primary School", "High School (10th/12th)", "Graduate", "No formal education"]
+  },
+  {
+    id: 3,
+    q: "Do you have access to a smartphone or computer daily?",
+    options: ["Yes, I have my own", "Yes, but I share it", "Only for a few hours", "No access"]
+  },
+  {
+    id: 4,
+    q: "What is your primary language for learning?",
+    options: ["Hindi", "English", "Marathi", "Other Regional Language"]
+  },
+  {
+    id: 5,
     q: "How much time can you dedicate daily to learning?",
     options: ["1-2 hours", "3-4 hours", "Full time", "Weekends only"]
   },
   {
-    id: 3,
+    id: 6,
     q: "What is your main goal right now?",
     options: ["Earn a side income from home", "Find a local full-time job", "Start my own micro-business", "Gain digital literacy"]
+  },
+  {
+    id: 7,
+    q: "How would you describe your previous work experience?",
+    options: ["I have never worked before", "I have worked in a shop/office", "I am currently self-employed", "I am a homemaker"]
   }
 ];
 
@@ -53,10 +73,13 @@ export default function ReadinessQuiz() {
         });
         const data = await res.json();
 
-        if (data.success) {
-          setMlResults(data.data.recommendations || []);
-          setQuizScore(data.data.score || 85);
+        if (!data.success) {
+          throw new Error(data.message || 'API Error');
         }
+
+        setMlResults(data.data.recommendations || []);
+        setQuizScore(data.data.score || 85);
+        localStorage.setItem("hasTakenTest", "true");
       } catch (err) {
         console.error("ML Quiz Failed:", err);
         // Fallback
