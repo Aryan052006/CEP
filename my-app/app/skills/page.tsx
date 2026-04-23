@@ -11,6 +11,7 @@ interface SkillRec {
   title: string;
   match: string;
   duration: string;
+  videoUrl?: string;
 }
 
 export default function SkillsPage() {
@@ -109,7 +110,7 @@ export default function SkillsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {filteredSkills.map((skill: any, index) => (
+                {filteredSkills.map((skill: SkillRec, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, scale: 0.95 }}
